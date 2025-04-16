@@ -1,0 +1,12 @@
+services:
+  flask-app:
+    build: .
+    container_name: pyapp-dev
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    command: python app.py
