@@ -4,13 +4,6 @@
   <meta charset="UTF-8">
   <title>Terraria DPS Calculator</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <style>
-    .legend-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin: 0.4rem 0 0.6rem;
-    }
-  </style>
   <script>
     function toggleSection(sectionId, checked) {
       const inputs = document.querySelectorAll(`#${sectionId} input[type=checkbox][data-group="${sectionId}"]`);
@@ -23,7 +16,7 @@
   <form method="POST">
     <div class="form-grid">
 
-      <!-- Weapon Core -->
+      <!-- Base Weapon -->
       <fieldset>
         <legend>⚔️ Weapon Base</legend>
         <label>Base Damage:
@@ -47,16 +40,13 @@
           <button type="button" onclick="toggleSection('prefix', true)">Enable All</button>
           <button type="button" onclick="toggleSection('prefix', false)">Disable All</button>
         </div>
-        <label>
-          <input type="checkbox" name="enable_bonus_dmg_prefix" data-group="prefix" {{ 'checked' if form_data.get('enable_bonus_dmg_prefix') }}> Bonus Damage (%)
+        <label><input type="checkbox" name="enable_bonus_dmg_prefix" data-group="prefix" {{ 'checked' if form_data.get('enable_bonus_dmg_prefix') }}> Bonus Damage (%)
           <input type="number" name="bonus_dmg_prefix" step="0.1" value="{{ form_data.get('bonus_dmg_prefix', '') }}">
         </label>
-        <label>
-          <input type="checkbox" name="enable_bonus_crit_prefix" data-group="prefix" {{ 'checked' if form_data.get('enable_bonus_crit_prefix') }}> Bonus Crit Chance (%)
+        <label><input type="checkbox" name="enable_bonus_crit_prefix" data-group="prefix" {{ 'checked' if form_data.get('enable_bonus_crit_prefix') }}> Bonus Crit Chance (%)
           <input type="number" name="bonus_crit_prefix" step="0.1" value="{{ form_data.get('bonus_crit_prefix', '') }}">
         </label>
-        <label>
-          <input type="checkbox" name="enable_bonus_speed_prefix" data-group="prefix" {{ 'checked' if form_data.get('enable_bonus_speed_prefix') }}> Bonus Attack Speed (%)
+        <label><input type="checkbox" name="enable_bonus_speed_prefix" data-group="prefix" {{ 'checked' if form_data.get('enable_bonus_speed_prefix') }}> Bonus Attack Speed (%)
           <input type="number" name="bonus_speed_prefix" step="0.1" value="{{ form_data.get('bonus_speed_prefix', '') }}">
         </label>
       </fieldset>
@@ -68,16 +58,13 @@
           <button type="button" onclick="toggleSection('set', true)">Enable All</button>
           <button type="button" onclick="toggleSection('set', false)">Disable All</button>
         </div>
-        <label>
-          <input type="checkbox" name="enable_bonus_dmg_set" data-group="set" {{ 'checked' if form_data.get('enable_bonus_dmg_set') }}> Bonus Damage (%)
+        <label><input type="checkbox" name="enable_bonus_dmg_set" data-group="set" {{ 'checked' if form_data.get('enable_bonus_dmg_set') }}> Bonus Damage (%)
           <input type="number" name="bonus_dmg_set" step="0.1" value="{{ form_data.get('bonus_dmg_set', '') }}">
         </label>
-        <label>
-          <input type="checkbox" name="enable_bonus_crit_set" data-group="set" {{ 'checked' if form_data.get('enable_bonus_crit_set') }}> Bonus Crit Chance (%)
+        <label><input type="checkbox" name="enable_bonus_crit_set" data-group="set" {{ 'checked' if form_data.get('enable_bonus_crit_set') }}> Bonus Crit Chance (%)
           <input type="number" name="bonus_crit_set" step="0.1" value="{{ form_data.get('bonus_crit_set', '') }}">
         </label>
-        <label>
-          <input type="checkbox" name="enable_bonus_crit_dmg_set" data-group="set" {{ 'checked' if form_data.get('enable_bonus_crit_dmg_set') }}> Bonus Crit Damage (%)
+        <label><input type="checkbox" name="enable_bonus_crit_dmg_set" data-group="set" {{ 'checked' if form_data.get('enable_bonus_crit_dmg_set') }}> Bonus Crit Damage (%)
           <input type="number" name="bonus_crit_dmg_set" step="0.1" value="{{ form_data.get('bonus_crit_dmg_set', '') }}">
         </label>
       </fieldset>
@@ -89,16 +76,13 @@
           <button type="button" onclick="toggleSection('equipment', true)">Enable All</button>
           <button type="button" onclick="toggleSection('equipment', false)">Disable All</button>
         </div>
-        <label>
-          <input type="checkbox" name="enable_bonus_dmg_eq" data-group="equipment" {{ 'checked' if form_data.get('enable_bonus_dmg_eq') }}> Bonus Damage (%)
+        <label><input type="checkbox" name="enable_bonus_dmg_eq" data-group="equipment" {{ 'checked' if form_data.get('enable_bonus_dmg_eq') }}> Bonus Damage (%)
           <input type="number" name="bonus_dmg_eq" step="0.1" value="{{ form_data.get('bonus_dmg_eq', '') }}">
         </label>
-        <label>
-          <input type="checkbox" name="enable_bonus_crit_eq" data-group="equipment" {{ 'checked' if form_data.get('enable_bonus_crit_eq') }}> Bonus Crit Chance (%)
+        <label><input type="checkbox" name="enable_bonus_crit_eq" data-group="equipment" {{ 'checked' if form_data.get('enable_bonus_crit_eq') }}> Bonus Crit Chance (%)
           <input type="number" name="bonus_crit_eq" step="0.1" value="{{ form_data.get('bonus_crit_eq', '') }}">
         </label>
-        <label>
-          <input type="checkbox" name="enable_bonus_crit_dmg_eq" data-group="equipment" {{ 'checked' if form_data.get('enable_bonus_crit_dmg_eq') }}> Bonus Crit Damage (%)
+        <label><input type="checkbox" name="enable_bonus_crit_dmg_eq" data-group="equipment" {{ 'checked' if form_data.get('enable_bonus_crit_dmg_eq') }}> Bonus Crit Damage (%)
           <input type="number" name="bonus_crit_dmg_eq" step="0.1" value="{{ form_data.get('bonus_crit_dmg_eq', '') }}">
         </label>
       </fieldset>
@@ -110,27 +94,42 @@
           <button type="button" onclick="toggleSection('reforge', true)">Enable All</button>
           <button type="button" onclick="toggleSection('reforge', false)">Disable All</button>
         </div>
-        <label>
-          <input type="checkbox" name="enable_bonus_dmg_reforge" data-group="reforge" {{ 'checked' if form_data.get('enable_bonus_dmg_reforge') }}> Bonus Damage (%)
+        <label><input type="checkbox" name="enable_bonus_dmg_reforge" data-group="reforge" {{ 'checked' if form_data.get('enable_bonus_dmg_reforge') }}> Bonus Damage (%)
           <input type="number" name="bonus_dmg_reforge" step="0.1" value="{{ form_data.get('bonus_dmg_reforge', '') }}">
         </label>
-        <label>
-          <input type="checkbox" name="enable_bonus_crit_reforge" data-group="reforge" {{ 'checked' if form_data.get('enable_bonus_crit_reforge') }}> Bonus Crit Chance (%)
+        <label><input type="checkbox" name="enable_bonus_crit_reforge" data-group="reforge" {{ 'checked' if form_data.get('enable_bonus_crit_reforge') }}> Bonus Crit Chance (%)
           <input type="number" name="bonus_crit_reforge" step="0.1" value="{{ form_data.get('bonus_crit_reforge', '') }}">
+        </label>
+      </fieldset>
+
+      <!-- Heatmap Settings -->
+      <fieldset id="realistic-config">
+        <legend>📊 Reforge Simulation Settings</legend>
+        <label>Accessory Slots:
+          <input type="number" name="accessory_slots" min="1" max="10" value="{{ form_data.get('accessory_slots', 6) }}">
+        </label>
+        <label>Damage per Reforge (%):
+          <input type="number" name="per_item_dmg" step="1" value="{{ form_data.get('per_item_dmg', 4) }}">
+        </label>
+        <label>Crit per Reforge (%):
+          <input type="number" name="per_item_crit" step="1" value="{{ form_data.get('per_item_crit', 4) }}">
         </label>
       </fieldset>
 
     </div>
 
-    <button type="submit">Calculate DPS</button>
+    <div class="buttons">
+      <button type="submit">Calculate DPS</button>
+      <button formaction="/heatmap" formmethod="POST">Generate Reforge Chart</button>
+    </div>
 
     {% if result %}
     <div class="results-box">
-        <h2>📊 Results</h2>
-        <p><strong>Damage:</strong> {{ result.total_damage }}</p>
-        <p><strong>Total Crit Chance:</strong> {{ result.total_crit_chance }}%</p>
-        <p><strong>Average Hit (incl. crit):</strong> {{ result.avg_damage }}</p>
-        <p><strong>Estimated DPS:</strong> {{ result.dps }}</p>
+      <h2>📊 Results</h2>
+      <p><strong>Damage:</strong> {{ result.total_damage }}</p>
+      <p><strong>Total Crit Chance:</strong> {{ result.total_crit_chance }}%</p>
+      <p><strong>Average Hit (incl. crit):</strong> {{ result.avg_damage }}</p>
+      <p><strong>Estimated DPS:</strong> {{ result.dps }}</p>
     </div>
     {% endif %}
   </form>
