@@ -114,6 +114,23 @@
         <label>Crit per Reforge (%):
           <input type="number" name="per_item_crit" step="1" value="{{ form_data.get('per_item_crit', 4) }}">
         </label>
+        <label>Minimum Defense:
+            <input type="number" name="def_min" step="1" value="{{ form_data.get('def_min', 0) }}">
+        </label>
+        <label>Maximum Defense:
+            <input type="number" name="def_max" step="1" value="{{ form_data.get('def_max', 100) }}">
+        </label>
+        <label>Samples (how many defense values to test):
+            <input type="number" name="def_samples" step="1" value="{{ form_data.get('def_samples', 5) }}">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>🎯 Target Settings</legend>
+        <label>Mob Defense:
+          <input type="number" name="mob_defense" step="1" min="0"
+                 value="{{ form_data.get('mob_defense', 0) }}">
+        </label>
       </fieldset>
 
     </div>

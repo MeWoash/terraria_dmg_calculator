@@ -17,6 +17,7 @@ def calculate_dps_from_form(form):
     base_crit = float(form.get('base_crit', 0))
     use_time = float(form.get('use_time', 1))
     projectiles = float(form.get('projectiles', 1))
+    mob_defense = float(form.get('mob_defense', 0))
 
     # weapon prefix
     bonus_dmg_prefix = get_bonus(form, 'bonus_dmg_prefix', 0.01)
@@ -42,18 +43,23 @@ def calculate_dps_from_form(form):
     crit_multiplier = 2 + bonus_crit_dmg_set + bonus_crit_dmg_eq
 
     total_damage = prefixed_base_dmg * (1 + total_bonus_dmg)
-    avg_hit = total_damage * (1 + (total_crit_chance / 100) * (crit_multiplier - 1))
+
+    # mob defense correction
+    effective_damage = max(total_damage - (mob_defense / 2), 1)
+
+    # final damage calculation
+    avg_hit = effective_damage * (1 + (total_crit_chance / 100) * (crit_multiplier - 1))
     real_use_time = use_time * (1 - bonus_speed_prefix)
     attacks_per_sec = 60 / real_use_time if real_use_time > 0 else 0
     dps = avg_hit * attacks_per_sec * projectiles
 
     return {
         'total_damage': total_damage,
+        'effective_damage': effective_damage,
         'avg_hit': avg_hit,
         'crit_chance': total_crit_chance,
         'dps': dps
     }
-
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -81,34 +87,45 @@ def heatmap():
     accessory_slots = int(form.get('accessory_slots', 6))
     per_item_dmg = float(form.get('per_item_dmg', 4)) / 100
     per_item_crit = float(form.get('per_item_crit', 4))
+    def_min = int(form.get('def_min', 0))
+    def_max = int(form.get('def_max', 100))
+    def_samples = int(form.get('def_samples', 5))
+    def_values = np.linspace(def_min, def_max, def_samples, dtype=int)
 
-    dps_values, labels = [], []
+    all_dps = {mob_def: [] for mob_def in def_values}
+    labels = []
 
     for dmg_count in range(accessory_slots + 1):
         crit_count = accessory_slots - dmg_count
-        modified_form = dict(form)
-        modified_form.update({
-            'bonus_dmg_reforge': str(dmg_count * per_item_dmg * 100),
-            'bonus_crit_reforge': str(crit_count * per_item_crit),
-            'enable_bonus_dmg_reforge': 'on',
-            'enable_bonus_crit_reforge': 'on'
-        })
+        label = f"{dmg_count}xDMG\n{crit_count}xCRIT"
+        labels.append(label)
 
-        try:
+        for mob_def in def_values:
+            modified_form = dict(form)
+            modified_form.update({
+                'bonus_dmg_reforge': str(dmg_count * per_item_dmg * 100),
+                'bonus_crit_reforge': str(crit_count * per_item_crit),
+                'enable_bonus_dmg_reforge': 'on',
+                'enable_bonus_crit_reforge': 'on',
+                'mob_defense': str(mob_def)
+            })
             stats = calculate_dps_from_form(modified_form)
-            dps_values.append(stats["dps"])
-            labels.append(f"{dmg_count}xDMG\n{crit_count}xCRIT")
-        except Exception as e:
-            print(f"Reforge error ({dmg_count} dmg, {crit_count} crit): {e}")
+            all_dps[mob_def].append(stats["dps"])
 
-    if not dps_values:
-        return "No valid DPS results could be calculated", 500
+    avg_dps = np.mean(list(all_dps.values()), axis=0)
+    avg_img = draw_bar_chart(avg_dps, labels, "Average DPS across defenses")
 
-    img_base64 = draw_bar_chart(dps_values, labels, accessory_slots)
-    return render_template("realistic_reforge.html", image_data=img_base64)
+    individual_imgs = []
+    max_charts = 6
+    step = max(1, len(def_values) // max_charts)
+    for mob_def in def_values[::step]:
+        chart = draw_bar_chart(all_dps[mob_def], labels, f"Defense: {mob_def}")
+        individual_imgs.append((mob_def, chart))
+
+    return render_template("realistic_reforge.html", avg_image=avg_img, charts=individual_imgs)
 
 
-def draw_bar_chart(dps_values, labels, accessory_slots):
+def draw_bar_chart(dps_values, labels, title, accessory_slots=None):
     fig, ax = plt.subplots(figsize=(12, 7))
 
     best_index = int(np.argmax(dps_values))
@@ -134,16 +151,17 @@ def draw_bar_chart(dps_values, labels, accessory_slots):
             transform=ax.transAxes, fontsize=13, ha='center', color='lightgreen')
 
     ax.set_ylabel("DPS")
-    ax.set_title(f"Reforge DPS ({accessory_slots} Accessory Slots)")
+    ax.set_title(title)
 
     y_min = min(dps_values) * 0.95
     y_max = max(dps_values) * 1.1
     ax.set_ylim(y_min, y_max)
 
-    base_dps = dps_values[accessory_slots // 2] 
-    ax.axhline(base_dps, color='orange', linestyle='--', linewidth=1)
-    ax.text(len(dps_values) - 1, base_dps + (y_max - y_min) * 0.01,
-            f'AVG DPS: {int(base_dps)}', ha='right', color='orange', fontsize=10)
+    if accessory_slots is not None:
+        base_dps = dps_values[accessory_slots // 2] 
+        ax.axhline(base_dps, color='orange', linestyle='--', linewidth=1)
+        ax.text(len(dps_values) - 1, base_dps + (y_max - y_min) * 0.01,
+                f'AVG DPS: {int(base_dps)}', ha='right', color='orange', fontsize=10)
 
     plt.xticks(rotation=45)
     plt.tight_layout()

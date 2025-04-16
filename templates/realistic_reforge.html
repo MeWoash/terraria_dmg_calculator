@@ -2,29 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Realistic Reforge Chart</title>
+  <title>Reforge Heatmap</title>
   <style>
-    body {
-      background: #1e1e2f;
-      color: #eee;
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2rem;
-    }
-    img {
-      border: 2px solid #444;
-      border-radius: 8px;
-      max-width: 100%;
-    }
-    a {
-      color: #80d0ff;
-      font-size: 1.1rem;
-    }
+    body { background-color: #121212; color: #eee; font-family: sans-serif; text-align: center; }
+    h1, h2 { margin-top: 20px; }
+    img { border: 1px solid #444; margin-bottom: 30px; max-width: 100%; }
   </style>
 </head>
 <body>
-  <h1>🔍 Realistic Reforge DPS Chart</h1>
-  <img src="data:image/png;base64,{{ image_data }}" alt="Chart">
-  <p><a href="/">← Back to calculator</a></p>
+  <h1>📊 Reforge DPS Heatmap</h1>
+
+  <h2>🔝 Average DPS Across Defenses</h2>
+  <img src="data:image/png;base64,{{ avg_image }}" alt="Average DPS Chart">
+
+  {% for defense, chart in charts %}
+    <h2>🛡️ Mob Defense: {{ defense }}</h2>
+    <img src="data:image/png;base64,{{ chart }}" alt="DPS at {{ defense }} Defense">
+  {% endfor %}
 </body>
 </html>
